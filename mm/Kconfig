@@ -919,3 +919,6 @@ config EMERGENCY_MEMORY
 	 a small amount of memory for non-costly non-NOWARN page allocation
 	 failure.
 
+config VMSTAT_INTERVAL
+	int "Default interval in seconds to update vmstat"
+	default 1
