@@ -390,6 +390,15 @@ void __init setup_arch(char **cmdline_p)
 	init_random_pool();
 }
 
+static inline bool cpu_can_disable(unsigned int cpu)
+{
+#ifdef CONFIG_HOTPLUG_CPU
+	if (cpu_ops[cpu] && cpu_ops[cpu]->cpu_can_disable)
+		return cpu_ops[cpu]->cpu_can_disable(cpu);
+#endif
+	return false;
+}
+
 static int __init topology_init(void)
 {
 	int i;
@@ -399,7 +408,7 @@ static int __init topology_init(void)
 
 	for_each_possible_cpu(i) {
 		struct cpu *cpu = &per_cpu(cpu_data.cpu, i);
-		cpu->hotpluggable = 1;
+		cpu->hotpluggable = cpu_can_disable(i);
 		register_cpu(cpu, i);
 	}
 
