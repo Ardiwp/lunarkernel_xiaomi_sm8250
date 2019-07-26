@@ -259,7 +259,7 @@ static void __hrtick_restart(struct rq *rq)
 	struct hrtimer *timer = &rq->hrtick_timer;
 	ktime_t time = rq->hrtick_time;
 
-	hrtimer_start(timer, time, HRTIMER_MODE_ABS_PINNED);
+	hrtimer_start(timer, time, HRTIMER_MODE_ABS_PINNED_HARD);
 }
 
 /*
@@ -315,7 +315,7 @@ void hrtick_start(struct rq *rq, u64 delay)
 	 */
 	delay = max_t(u64, delay, 10000LL);
 	hrtimer_start(&rq->hrtick_timer, ns_to_ktime(delay),
-		      HRTIMER_MODE_REL_PINNED);
+		      HRTIMER_MODE_REL_PINNED_HARD);
 }
 
 #endif /* CONFIG_SMP */
@@ -327,7 +327,7 @@ static void hrtick_rq_init(struct rq *rq)
 
 	rq_csd_init(rq, &rq->hrtick_csd, __hrtick_start);
 #endif
-	hrtimer_init(&rq->hrtick_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+	hrtimer_init(&rq->hrtick_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_HARD);
 	rq->hrtick_timer.function = hrtick;
 }
 #else	/* CONFIG_SCHED_HRTICK */
