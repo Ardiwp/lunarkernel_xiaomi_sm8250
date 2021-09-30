@@ -1736,6 +1736,11 @@ static inline int sched_numa_find_closest(const struct cpumask *cpus, int cpu)
 }
 #endif
 
+#if defined(CONFIG_NUMA_BALANCING) || defined(CONFIG_SPRD_ROTATION_TASK)
+extern int migrate_swap(struct task_struct *p, struct task_struct *t,
+			int cpu, int scpu);
+#endif
+
 #ifdef CONFIG_NUMA_BALANCING
 /* The regions in numa_faults array from task_struct */
 enum numa_faults_stats {
@@ -3194,3 +3199,32 @@ extern void sched_get_nr_running_avg(struct sched_avg_stats *stats);
 extern u64 avg_vruntime(struct cfs_rq *cfs_rq);
 extern int entity_eligible(struct cfs_rq *cfs_rq, struct sched_entity *se);
 extern bool dequeue_task(struct rq *rq, struct task_struct *p, int flags);
+
+#ifdef CONFIG_SPRD_ROTATION_TASK
+DECLARE_PER_CPU_SHARED_ALIGNED(bool, cpu_reserved);
+static inline bool is_reserved(int cpu)
+{
+	return per_cpu(cpu_reserved, cpu);
+}
+
+static inline void mark_reserved(int cpu)
+{
+	per_cpu(cpu_reserved, cpu) = true;
+}
+
+static inline void clear_reserved(int cpu)
+{
+	per_cpu(cpu_reserved, cpu) = false;
+}
+void check_for_task_rotation(struct rq *src_rq);
+u64 sched_ktime_clock(void);
+#else
+static inline bool is_reserved(int cpu)
+{
+	return false;
+}
+static inline u64 sched_ktime_clock(void)
+{
+	return sched_clock();
+}
+#endif
