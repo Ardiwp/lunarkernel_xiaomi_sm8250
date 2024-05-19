@@ -12764,3 +12764,7 @@ __init void init_sched_fair_class(void)
 #endif /* SMP */
 
 }
+
+#ifdef CONFIG_SPRD_ROTATION_TASK
+#include "sprd_rotation.c"
+#endif
