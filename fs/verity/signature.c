@@ -129,7 +129,6 @@ int __fsverity_verify_signature(const struct inode *inode, const u8 *signature,
 		 hash_alg->name, hash_alg->digest_size, file_digest);
 	return 0;
 }
-EXPORT_SYMBOL_GPL(__fsverity_verify_signature);
 
 #ifdef CONFIG_SYSCTL
 static struct ctl_table_header *fsverity_sysctl_header;
