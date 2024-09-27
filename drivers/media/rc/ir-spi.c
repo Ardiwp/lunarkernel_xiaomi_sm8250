@@ -1,5 +1,6 @@
-/*
+ /*
  * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (C) 2021 XiaoMi, Inc.
  * Author: Andi Shyti <andi.shyti@samsung.it>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -38,11 +39,11 @@
 #include <uapi/linux/lirc.h>
 #include <asm/uaccess.h>
 
-#define IR_SPI_DRIVER_NAME "ir-spi"
+#define IR_SPI_DRIVER_NAME		"ir-spi"
 
-#define IR_SPI_DEFAULT_FREQUENCY 1920000
-#define IR_SPI_BIT_PER_WORD 32
-#define IR_SPI_DATA_BUFFER 150000
+#define IR_SPI_DEFAULT_FREQUENCY	1920000
+#define IR_SPI_BIT_PER_WORD		    32
+#define IR_SPI_DATA_BUFFER		    150000
 
 struct ir_spi_data *ir_spi_data_g;
 
@@ -61,8 +62,8 @@ struct ir_spi_data {
 };
 
 static ssize_t ir_spi_chardev_write(struct file *file,
-				    const char __user *buffer, size_t length,
-				    loff_t *offset)
+					const char __user *buffer,
+					size_t length, loff_t *offset)
 {
 	struct ir_spi_data *idata = file->private_data;
 	bool please_free = false;
@@ -90,8 +91,7 @@ static ssize_t ir_spi_chardev_write(struct file *file,
 		goto out_free;
 	}
 	idata->xfer.tx_buf = idata->buffer;
-	dev_warn(&idata->spi->dev, "xfer.len%d buffer_size %d\n",
-		 (int)idata->xfer.len, idata->buffer_size);
+	dev_warn(&idata->spi->dev, "xfer.len%d buffer_size %d\n",(int)idata->xfer.len,idata->buffer_size);
 	ret = spi_sync_transfer(idata->spi, &idata->xfer, 1);
 	if (ret)
 		dev_err(&idata->spi->dev, "unable to deliver the signal\n");
@@ -111,7 +111,6 @@ out_unlock:
 static int ir_spi_chardev_open(struct inode *inode, struct file *file)
 {
 	struct ir_spi_data *idata;
-
 	idata = ir_spi_data_g;
 
 	if (unlikely(idata->nusers >= SHRT_MAX)) {
@@ -131,7 +130,6 @@ static int ir_spi_chardev_open(struct inode *inode, struct file *file)
 static int ir_spi_chardev_close(struct inode *inode, struct file *file)
 {
 	struct ir_spi_data *idata;
-
 	idata = ir_spi_data_g;
 
 	mutex_lock(&idata->mutex);
@@ -156,75 +154,77 @@ static int ir_spi_chardev_close(struct inode *inode, struct file *file)
 }
 
 static long ir_spi_chardev_ioctl(struct file *file, unsigned int cmd,
-				 unsigned long arg)
+						unsigned long arg)
 {
 	__u32 p;
 	s32 ret;
 	struct ir_spi_data *idata = file->private_data;
 
 	switch (cmd) {
-	case LIRC_SET_SEND_MODE: {
-		void *new;
+		case LIRC_SET_SEND_MODE: {
+			void *new;
 
-		ret = get_user(p, (__u32 __user *)arg);
-		if (ret)
-			return ret;
+			ret = get_user(p, (__u32 __user *) arg);
+			if (ret)
+				return ret;
 
-		/**
-		 * the user is trying to set the same
-		 * length of the current value
-		 */
-		if (idata->xfer.len == p)
-			return 0;
+			/*
+			 * the user is trying to set the same
+			 * length of the current value
+			 */
+			if (idata->xfer.len == p)
+				return 0;
 
-		/**
-		 * multiple users should use the driver with the
-		 * length, otherwise return EPERM same data
-		 */
-		if (idata->nusers > 1)
-			return -EPERM;
+			/*
+			 * multiple users should use the driver with the
+			 * length, otherwise return EPERM same data
+			 */
+			if (idata->nusers > 1)
+				return -EPERM;
 
-		/**
-		 * if the buffer is already allocated, reallocate it with the
-		 * desired value. If the desired value is 0, then the buffer is
-		 * freed from krealloc()
-		 */
-		if (idata->xfer.len) {
-			new = krealloc(idata->buffer, p, GFP_DMA);
-		} else {
-			if ((p > idata->buffer_size) ||
-			    (idata->buffer == NULL)) {
-				if (idata->buffer != NULL) {
-					kfree(idata->buffer);
-					idata->buffer = NULL;
+			/*
+			 * if the buffer is already allocated, reallocate it with the
+			 * desired value. If the desired value is 0, then the buffer is
+			 * freed from krealloc()
+			 */
+			if (idata->xfer.len){
+				new = krealloc(idata->buffer, p, GFP_DMA);
 				}
-				new = kmalloc(p, GFP_DMA);
-				if (!new)
-					return -ENOMEM;
-				idata->buffer = new;
-				idata->buffer_size = p;
+			else{
+				if ((p>idata->buffer_size) || (idata->buffer == NULL)){
+					printk ("IR new malloc %d",(int)idata->xfer.len);
+					if (idata->buffer != NULL)
+					{
+						kfree (idata->buffer);
+						idata->buffer = NULL;
+					}
+					new = kmalloc(p, GFP_DMA);
+					if (!new)
+						return -ENOMEM;
+					idata->buffer = new;
+					idata->buffer_size = p;
+				}
 			}
+
+			mutex_lock(&idata->mutex);
+			idata->xfer.len = p;
+			mutex_unlock(&idata->mutex);
+
+			return 0;
 		}
-
-		mutex_lock(&idata->mutex);
-		idata->xfer.len = p;
-		mutex_unlock(&idata->mutex);
-
-		return 0;
-	}
 	}
 
 	return -EINVAL;
 }
 
 static const struct file_operations ir_spi_fops = {
-	.owner = THIS_MODULE,
-	.write = ir_spi_chardev_write,
-	.open = ir_spi_chardev_open,
+	.owner   = THIS_MODULE,
+	.write   = ir_spi_chardev_write,
+	.open    = ir_spi_chardev_open,
 	.release = ir_spi_chardev_close,
-	.llseek = noop_llseek,
+	.llseek  = noop_llseek,
 	.unlocked_ioctl = ir_spi_chardev_ioctl,
-	.compat_ioctl = ir_spi_chardev_ioctl,
+	.compat_ioctl   = ir_spi_chardev_ioctl,
 };
 
 static struct miscdevice ir_spi_dev_drv = {
@@ -239,7 +239,6 @@ static int ir_spi_probe(struct spi_device *spi)
 {
 	struct ir_spi_data *idata;
 	u8 *buffer = NULL;
-
 	idata = devm_kzalloc(&spi->dev, sizeof(*idata), GFP_KERNEL);
 	if (!idata)
 		return -ENOMEM;
@@ -254,8 +253,9 @@ static int ir_spi_probe(struct spi_device *spi)
 	idata->xfer.speed_hz = IR_SPI_DEFAULT_FREQUENCY;
 	buffer = kmalloc(IR_SPI_DATA_BUFFER, GFP_DMA);
 	if (!buffer)
+	{
 		return -ENOMEM;
-
+	}
 	idata->buffer = buffer;
 	idata->buffer_size = IR_SPI_DATA_BUFFER;
 	misc_register(&ir_spi_dev_drv);
@@ -265,8 +265,7 @@ static int ir_spi_probe(struct spi_device *spi)
 static int ir_spi_remove(struct spi_device *spi)
 {
 	struct ir_spi_data *idata = spi_get_drvdata(spi);
-
-	if (idata->buffer != NULL) {
+	if (idata->buffer != NULL){
 		kfree(idata->buffer);
 		idata->buffer = NULL;
 	}
