@@ -108,6 +108,7 @@ enum hvdcp3_type {
  * the warm threshold
  */
 #define JEITA_HYSTERESIS 20
+#define JEITA_HYSTERESIS_PIPA 21
 #define JEITA_HYSTERESIS_DAGU 21
 
 #define HIGH_CAPACITY_TRH 85
