@@ -27,3 +27,5 @@ obj-$(CONFIG_DUAL_FUEL_GAUGE_BQ27Z561)  += bq27z561_fg.o dual_fuel_gauge_class.o
 obj-$(CONFIG_DUAL_FUEL_GAUGE_BQ27Z561_DAGU)  += bq27z561_fg_dagu.o dual_fuel_gauge_class_dagu.o
 
 obj-$(CONFIG_FUDA_1665)			+= nu1665.o
+obj-$(CONFIG_QPNP_FG_GEN4_PIPA)		+= qpnp-fg-gen4-pipa.o fg-memif.o fg-util.o fg-alg.o pmic-voter.o
+obj-$(CONFIG_QPNP_SMB5_PIPA)		+= step-chg-jeita-pipa.o battery.o qpnp-smb5-pipa.o smb5-lib-pipa.o pmic-voter.o storm-watch.o schgm-flash.o

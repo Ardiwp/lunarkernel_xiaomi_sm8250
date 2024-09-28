@@ -87,6 +87,7 @@ obj-$(CONFIG_AXP288_CHARGER)	+= axp288_charger.o
 obj-$(CONFIG_CHARGER_CROS_USBPD)	+= cros_usbpd-charger.o
 obj-$(CONFIG_ARCH_QCOM)		+= qcom/
 obj-$(CONFIG_MACH_XIAOMI_CAS)	+= qcom_cas/
+obj-$(CONFIG_MACH_XIAOMI_PIPA)         += maxim_pipa/
 obj-y	+= lionsemi/
 obj-y	+= maxim/
 obj-y	+= nuvolta/
