@@ -100,6 +100,7 @@ enum hvdcp3_type {
 #define MAX_THERMAL_LEVEL 10
 /* jeita related */
 #define JEITA_WARM_THR 450
+#define JEITA_COOL_NOT_ALLOW_CP_THR_PIPA 100
 #define JEITA_COOL_NOT_ALLOW_CP_THR 100
 /*
  * add hysteresis for warm threshold to avoid flash

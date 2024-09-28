@@ -99,6 +99,7 @@ enum pm_state {
 /* jeita related */
 #define JEITA_WARM_THR 450
 #define JEITA_COOL_NOT_ALLOW_CP_THR 100
+#define JEITA_COOL_NOT_ALLOW_CP_THR_PIPA 50
 #define JEITA_COOL_NOT_ALLOW_CP_THR_DAGU 50
 
 #define JEITA_HYSTERESIS 20
