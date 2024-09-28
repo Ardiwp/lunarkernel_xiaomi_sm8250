@@ -255,4 +255,15 @@ config DUAL_FUEL_GAUGE_BQ27Z561_DAGU
 	help
 	  Say Y to enable support for TI bq27z561 fuel gauge driver
 
+config FUDA_1665
+	tristate "fuda1665 wireless Charger"
+	depends on I2C
+	help
+	  Say Y to include support for fuda1665 wireless Charger.
+	  fuda1665 is a wireless battery charger.
+	  The driver supports charger enable/disable.
+	  The driver reports the charger status via the power supply framework.
+	  The driver controls fuda1665 via I2C and
+	  supports device-tree interface.
+
 endmenu

@@ -25,3 +25,5 @@ obj-$(CONFIG_FUEL_GAUGE_BQ27Z561_PSYCHE) += bq27z561_fg_psyche.o
 obj-$(CONFIG_FUEL_GAUGE_BQ27Z561_MUNCH) += bq27z561_fg_munch.o
 obj-$(CONFIG_DUAL_FUEL_GAUGE_BQ27Z561)  += bq27z561_fg.o dual_fuel_gauge_class.o
 obj-$(CONFIG_DUAL_FUEL_GAUGE_BQ27Z561_DAGU)  += bq27z561_fg_dagu.o dual_fuel_gauge_class_dagu.o
+
+obj-$(CONFIG_FUDA_1665)			+= nu1665.o
