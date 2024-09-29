@@ -17,7 +17,7 @@
 #include <linux/regmap.h>
 #include <linux/iio/consumer.h>
 #include <linux/i2c.h>
-#include "../ti/bq25790.h"
+#include "bq25790.h"
 
 #define REVID_REVISION4			0x103
 
