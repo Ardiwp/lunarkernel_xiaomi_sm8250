@@ -2613,6 +2613,7 @@ static int cam_smmu_secure_unmap_buf_and_remove_from_list(
 		CAM_ERR(CAM_SMMU, "Error: List doesn't exist");
 		return -EINVAL;
 	}
+	
 	if ((!mapping_info->buf) || (!mapping_info->table) ||
 	    (!mapping_info->attach)) {
 		CAM_ERR(CAM_SMMU,
