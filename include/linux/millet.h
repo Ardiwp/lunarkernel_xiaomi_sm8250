@@ -6,6 +6,7 @@
 #include <linux/proc_fs.h>
 #include <linux/sched.h>
 #include <uapi/linux/millet.h>
+#include <linux/cgroup.h>
 
 #define RET_OK 0
 #define RET_ERR -1
@@ -64,6 +65,6 @@ static inline int unregister_millet_hook(int type) { return 0; }
 #endif
 static inline int frozen_task_group(struct task_struct *task)
 {
-	return (freezing(task) || frozen(task));
+	return (freezing(task) || frozen(task) || cgroup_task_freeze(task) || cgroup_task_frozen(task));
 }
 #endif
