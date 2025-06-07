@@ -7996,8 +7996,8 @@ static void sched_rq_cpu_starting(unsigned int cpu)
 	struct rq *rq = cpu_rq(cpu);
 	unsigned long flags;
 
-	raw_spin_lock_irqsave(&rq->lock, flags);
-	raw_spin_unlock_irqrestore(&rq->lock, flags);
+	raw_spin_rq_lock_irqsave(rq, flags);
+	raw_spin_rq_unlock_irqrestore(rq, flags);
 
 	rq->calc_load_update = calc_load_update;
 	update_max_interval();
