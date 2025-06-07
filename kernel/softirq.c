@@ -88,7 +88,7 @@ static void wakeup_softirqd(void)
 	/* Interrupts are disabled: no need to stop preemption */
 	struct task_struct *tsk = __this_cpu_read(ksoftirqd);
 
-	if (tsk && tsk->state != TASK_RUNNING)
+	if (tsk && READ_ONCE(tsk->__state) != TASK_RUNNING)
 		wake_up_process(tsk);
 }
 
@@ -101,7 +101,7 @@ static bool ksoftirqd_running(void)
 {
 	struct task_struct *tsk = __this_cpu_read(ksoftirqd);
 
-	return tsk && (tsk->state == TASK_RUNNING);
+	return tsk && (READ_ONCE(tsk->__state) == TASK_RUNNING);
 }
 #else
 #define ksoftirqd_running(pending) (false)
