@@ -218,7 +218,7 @@ static inline int mi_reclaim_thread_wakeup(void)
 		return RET_OK;
 
 	reclaim_tsk = pg_mi_reclaim->task;
-	if (reclaim_tsk && reclaim_tsk->state != TASK_RUNNING) {
+	if (reclaim_tsk && READ_ONCE(reclaim_tsk->__state) != TASK_RUNNING) {
 		pg_mi_reclaim->need_reclaim = true;
 		wake_up(&pg_mi_reclaim->wait);
 	}
