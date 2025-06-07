@@ -66,22 +66,6 @@ static inline struct kthread *to_kthread(struct task_struct *k)
 	return (__force void *)k->set_child_tid;
 }
 
-void set_kthread_struct(struct task_struct *p)
-{
-	struct kthread *kthread;
-
-	if (__to_kthread(p))
-		return;
-
-	kthread = kzalloc(sizeof(*kthread), GFP_KERNEL);
-	/*
-	 * We abuse ->set_child_tid to avoid the new member and because it
-	 * can't be wrongly copied by copy_process(). We also rely on fact
-	 * that the caller can't exec, so PF_KTHREAD can't be cleared.
-	 */
-	p->set_child_tid = (__force void __user *)kthread;
-}
-
 /*
  * Variant of to_kthread() that doesn't assume @p is a kthread.
  *
@@ -99,6 +83,22 @@ static inline struct kthread *__to_kthread(struct task_struct *p)
 	if (kthread && !(p->flags & PF_KTHREAD))
 		kthread = NULL;
 	return kthread;
+}
+
+void set_kthread_struct(struct task_struct *p)
+{
+	struct kthread *kthread;
+
+	if (__to_kthread(p))
+		return;
+
+	kthread = kzalloc(sizeof(*kthread), GFP_KERNEL);
+	/*
+	 * We abuse ->set_child_tid to avoid the new member and because it
+	 * can't be wrongly copied by copy_process(). We also rely on fact
+	 * that the caller can't exec, so PF_KTHREAD can't be cleared.
+	 */
+	p->set_child_tid = (__force void __user *)kthread;
 }
 
 void free_kthread_struct(struct task_struct *k)
