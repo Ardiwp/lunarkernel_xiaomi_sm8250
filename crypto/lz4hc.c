@@ -97,11 +97,7 @@ static int __lz4hc_decompress_crypto(const u8 *src, unsigned int slen,
 {
 	int out_len;
 
-#if defined(CONFIG_ARM64) && defined(CONFIG_KERNEL_MODE_NEON)
-	out_len = LZ4_arm64_decompress_safe(src, dst, slen, *dlen, false);
-#else
 	out_len = LZ4_decompress_safe(src, dst, slen, *dlen);
-#endif
 
 	if (out_len < 0)
 		return -EINVAL;

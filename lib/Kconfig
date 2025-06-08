@@ -263,13 +263,10 @@ config LZO_COMPRESS
 config LZO_DECOMPRESS
 	tristate
 
-config LZ4_COMPRESS
+config LZ4
 	tristate
 
-config LZ4HC_COMPRESS
-	tristate
-
-config LZ4_DECOMPRESS
+config LZ4HC
 	tristate
 
 config ZSTD_COMPRESS
