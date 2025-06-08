@@ -1586,6 +1586,7 @@ static void zram_bio_discard(struct zram *zram, u32 index,
 			     int offset, struct bio *bio)
 {
 	size_t n = bio->bi_iter.bi_size;
+	u64 freed_pages = 0;
 
 	/*
 	 * zram manages data in physical block size units. Because logical block
@@ -1605,13 +1606,17 @@ static void zram_bio_discard(struct zram *zram, u32 index,
 		index++;
 	}
 
-	while (n >= PAGE_SIZE) {
+    for (; n >= PAGE_SIZE; n -= PAGE_SIZE, index++) {
+		if (!zram_get_entry(zram, index))
+		    continue;
+
 		zram_slot_lock(zram, index);
-		zram_free_page(zram, index);
+		if (zram_get_entry(zram, index)) {
+			zram_free_page(zram, index);
+			atomic64_inc(&zram->stats.notify_free);
+			freed_pages++;
+		}
 		zram_slot_unlock(zram, index);
-		atomic64_inc(&zram->stats.notify_free);
-		index++;
-		n -= PAGE_SIZE;
 	}
 }
 
