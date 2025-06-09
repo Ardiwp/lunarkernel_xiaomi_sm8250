@@ -1203,6 +1203,41 @@ static inline int cpu_of(struct rq *rq)
 struct sched_group;
 #ifdef CONFIG_SCHED_CORE
 static inline struct cpumask *sched_group_span(struct sched_group *sg);
+
+DECLARE_STATIC_KEY_FALSE(__sched_core_enabled);
+
+static inline bool sched_core_enabled(struct rq *rq)
+{
+	return static_branch_unlikely(&__sched_core_enabled) && rq->core_enabled;
+}
+
+static inline bool sched_core_disabled(void)
+{
+	return !static_branch_unlikely(&__sched_core_enabled);
+}
+
+/*
+ * Be careful with this function; not for general use. The return value isn't
+ * stable unless you actually hold a relevant rq->__lock.
+ */
+static inline raw_spinlock_t *rq_lockp(struct rq *rq)
+{
+	if (sched_core_enabled(rq))
+		return &rq->core->__lock;
+
+	return &rq->__lock;
+}
+
+static inline raw_spinlock_t *__rq_lockp(struct rq *rq)
+{
+	if (rq->core_enabled)
+		return &rq->core->__lock;
+
+	return &rq->__lock;
+}
+
+bool cfs_prio_less(struct task_struct *a, struct task_struct *b, bool fi);
+
 /*
  * Helpers to check if the CPU's core cookie matches with the task's cookie
  * when core scheduling is enabled.
@@ -1257,71 +1292,6 @@ static inline bool sched_group_cookie_match(struct rq *rq,
 	}
 	return false;
 }
-#else /* !CONFIG_SCHED_CORE */
-static inline bool sched_cpu_cookie_match(struct rq *rq, struct task_struct *p)
-{
-	return true;
-}
-
-static inline bool sched_core_cookie_match(struct rq *rq, struct task_struct *p)
-{
-	return true;
-}
-
-static inline bool sched_group_cookie_match(struct rq *rq,
-					    struct task_struct *p,
-					    struct sched_group *group)
-{
-	return true;
-}
-#endif /* CONFIG_SCHED_CORE */
-
-#define MDF_PUSH	0x01
-
-static inline bool is_migration_disabled(struct task_struct *p)
-{
-#ifdef CONFIG_SMP
-	return p->migration_disabled;
-#else
-	return false;
-#endif
-}
-
-#ifdef CONFIG_SCHED_CORE
-
-DECLARE_STATIC_KEY_FALSE(__sched_core_enabled);
-
-static inline bool sched_core_enabled(struct rq *rq)
-{
-	return static_branch_unlikely(&__sched_core_enabled) && rq->core_enabled;
-}
-
-static inline bool sched_core_disabled(void)
-{
-	return !static_branch_unlikely(&__sched_core_enabled);
-}
-
-/*
- * Be careful with this function; not for general use. The return value isn't
- * stable unless you actually hold a relevant rq->__lock.
- */
-static inline raw_spinlock_t *rq_lockp(struct rq *rq)
-{
-	if (sched_core_enabled(rq))
-		return &rq->core->__lock;
-
-	return &rq->__lock;
-}
-
-static inline raw_spinlock_t *__rq_lockp(struct rq *rq)
-{
-	if (rq->core_enabled)
-		return &rq->core->__lock;
-
-	return &rq->__lock;
-}
-
-bool cfs_prio_less(struct task_struct *a, struct task_struct *b, bool fi);
 
 extern void queue_core_balance(struct rq *rq);
 
@@ -1367,7 +1337,34 @@ static inline void queue_core_balance(struct rq *rq)
 {
 }
 
+static inline bool sched_cpu_cookie_match(struct rq *rq, struct task_struct *p)
+{
+	return true;
+}
+
+static inline bool sched_core_cookie_match(struct rq *rq, struct task_struct *p)
+{
+	return true;
+}
+
+static inline bool sched_group_cookie_match(struct rq *rq,
+					    struct task_struct *p,
+					    struct sched_group *group)
+{
+	return true;
+}
 #endif /* CONFIG_SCHED_CORE */
+
+#define MDF_PUSH	0x01
+
+static inline bool is_migration_disabled(struct task_struct *p)
+{
+#ifdef CONFIG_SMP
+	return p->migration_disabled;
+#else
+	return false;
+#endif
+}
 
 static inline void lockdep_assert_rq_held(struct rq *rq)
 {
