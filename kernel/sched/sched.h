@@ -2593,11 +2593,6 @@ static inline int hrtick_enabled(struct rq *rq)
 
 #endif /* CONFIG_SCHED_HRTICK */
 
-static inline u64 sched_ktime_clock(void)
-{
-	return sched_clock();
-}
-
 #ifndef arch_scale_freq_capacity
 /**
  * arch_scale_freq_capacity - get the frequency scale factor of a given CPU.
