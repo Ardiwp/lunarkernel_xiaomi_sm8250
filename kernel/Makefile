@@ -128,12 +128,66 @@ obj-$(CONFIG_RSEQ) += rseq.o
 $(obj)/configs.o: $(obj)/config_data.h
 
 targets += config_data.gz
-$(obj)/config_data.gz: $(KCONFIG_CONFIG) FORCE
-	$(call if_changed,gzip)
 
-      filechk_ikconfiggz = (echo "static const char kernel_config_data[] __used = MAGIC_START"; cat $< | scripts/bin2c; echo "MAGIC_END;")
-targets += config_data.h
-$(obj)/config_data.h: $(obj)/config_data.gz FORCE
+ifeq ($(CONFIG_XIAOMI_MIUI),y)
+
+# Build for MIUI
+ifeq ($(CONFIG_MACH_XIAOMI_ALIOTH),y)
+$(obj)/config_data.gz: arch/arm64/configs/stock/miui/alioth_stock-defconfig FORCE
+else ifeq ($(CONFIG_MACH_XIAOMI_APOLLO),y)
+$(obj)/config_data.gz: arch/arm64/configs/stock/miui/apollo_stock-defconfig FORCE
+else ifeq ($(CONFIG_MACH_XIAOMI_CAS),y)
+$(obj)/config_data.gz: arch/arm64/configs/stock/miui/cas_stock-defconfig FORCE
+else ifeq ($(CONFIG_MACH_XIAOMI_CMI),y)
+$(obj)/config_data.gz: arch/arm64/configs/stock/miui/cmi_stock-defconfig FORCE
+else ifeq ($(CONFIG_MACH_XIAOMI_ELISH),y)
+$(obj)/config_data.gz: arch/arm64/configs/stock/miui/elish_stock-defconfig FORCE
+else ifeq ($(CONFIG_MACH_XIAOMI_ENUMA),y)
+$(obj)/config_data.gz: arch/arm64/configs/stock/miui/enuma_stock-defconfig FORCE
+else ifeq ($(CONFIG_MACH_XIAOMI_LMI),y)
+$(obj)/config_data.gz: arch/arm64/configs/stock/miui/lmi_stock-defconfig FORCE
+else ifeq ($(CONFIG_MACH_XIAOMI_MUNCH),y)
+$(obj)/config_data.gz: arch/arm64/configs/stock/miui/munch_stock-defconfig FORCE
+else ifeq ($(CONFIG_MACH_XIAOMI_PSYCHE),y)
+$(obj)/config_data.gz: arch/arm64/configs/stock/miui/psyche_stock-defconfig FORCE
+else ifeq ($(CONFIG_MACH_XIAOMI_THYME),y)
+$(obj)/config_data.gz: arch/arm64/configs/stock/miui/thyme_stock-defconfig FORCE
+else ifeq ($(CONFIG_MACH_XIAOMI_UMI),y)
+$(obj)/config_data.gz: arch/arm64/configs/stock/miui/umi_stock-defconfig FORCE
+else ifeq ($(CONFIG_MACH_XIAOMI_PIPA),y)
+$(obj)/config_data.gz: arch/arm64/configs/stock/miui/pipa_stock-defconfig FORCE
+else ifeq ($(CONFIG_MACH_XIAOMI_DAGU),y)
+$(obj)/config_data.gz: arch/arm64/configs/stock/miui/dagu_stock-defconfig FORCE
+else
+$(obj)/config_data.gz: $(KCONFIG_CONFIG) FORCE
+endif
+
+else # CONFIG_XIAOMI_MIUI
+
+# Build for AOSP
+
+ifeq ($(CONFIG_MACH_XIAOMI_ALIOTH),y)
+$(obj)/config_data.gz: arch/arm64/configs/stock/aosp/alioth_stock-defconfig FORCE
+else ifeq ($(CONFIG_MACH_XIAOMI_APOLLO),y)
+$(obj)/config_data.gz: arch/arm64/configs/stock/aosp/apollo_stock-defconfig FORCE
+else ifeq ($(CONFIG_MACH_XIAOMI_CMI),y)
+$(obj)/config_data.gz: arch/arm64/configs/stock/aosp/cmi_stock-defconfig FORCE
+else ifeq ($(CONFIG_MACH_XIAOMI_LMI),y)
+$(obj)/config_data.gz: arch/arm64/configs/stock/aosp/lmi_stock-defconfig FORCE
+else ifeq ($(CONFIG_MACH_XIAOMI_MUNCH),y)
+$(obj)/config_data.gz: arch/arm64/configs/stock/aosp/munch_stock-defconfig FORCE
+else ifeq ($(CONFIG_MACH_XIAOMI_PSYCHE),y)
+$(obj)/config_data.gz: arch/arm64/configs/stock/aosp/psyche_stock-defconfig FORCE
+else ifeq ($(CONFIG_MACH_XIAOMI_UMI),y)
+$(obj)/config_data.gz: arch/arm64/configs/stock/aosp/umi_stock-defconfig FORCE
+else ifeq ($(CONFIG_MACH_XIAOMI_PIPA),y)
+$(obj)/config_data.gz: arch/arm64/configs/stock/aosp/pipa_stock-defconfig FORCE
+else
+$(obj)/config_data.gz: $(KCONFIG_CONFIG) FORCE
+endif
+
+endif # CONFIG_XIAOMI_MIUI
+
 	$(call filechk,ikconfiggz)
 
 $(obj)/kheaders.o: $(obj)/kheaders_data.tar.xz
